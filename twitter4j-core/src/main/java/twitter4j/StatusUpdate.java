@@ -16,6 +16,8 @@
 
 package twitter4j;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -40,10 +42,12 @@ public final class StatusUpdate implements java.io.Serializable {
     private File mediaFile;
     private long[] mediaIds;
     private boolean autoPopulateReplyMetadata;
+    private List<Long> excludeReplyUserIds;
     private String attachmentUrl = null;
 
     public StatusUpdate(String status) {
         this.status = status;
+        excludeReplyUserIds = new ArrayList<>();
     }
 
     public String getStatus() {
@@ -234,8 +238,21 @@ public final class StatusUpdate implements java.io.Serializable {
         return this;
     }
 
+    public List<Long> getExcludeReplyUserIds() {
+        return excludeReplyUserIds;
+    }
+
+    public void setExcludeReplyUserIds(List<Long> excludeReplyUserIds) {
+        this.excludeReplyUserIds = excludeReplyUserIds;
+    }
+
+    public StatusUpdate excludeReplyUserIds(List<Long> excludeReplyUserIds) {
+        this.excludeReplyUserIds = excludeReplyUserIds;
+        return this;
+    }
+
     /*package*/ HttpParameter[] asHttpParameterArray() {
-        ArrayList<HttpParameter> params = new ArrayList<HttpParameter>();
+        ArrayList<HttpParameter> params = new ArrayList<>();
         appendParameter("status", status, params);
         if (-1 != inReplyToStatusId) {
             appendParameter("in_reply_to_status_id", inReplyToStatusId, params);
@@ -260,6 +277,10 @@ public final class StatusUpdate implements java.io.Serializable {
         }
         if(autoPopulateReplyMetadata){
             appendParameter("auto_populate_reply_metadata", "true", params);
+            if(excludeReplyUserIds.size() > 0) {
+                String ids = StringUtils.join(excludeReplyUserIds, ",");
+                appendParameter("exclude_reply_user_ids", ids, params);
+            }
         }
         appendParameter("attachment_url", attachmentUrl, params);
         HttpParameter[] paramArray = new HttpParameter[params.size()];
