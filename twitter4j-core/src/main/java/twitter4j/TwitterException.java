@@ -35,7 +35,7 @@ public class TwitterException extends Exception implements TwitterResponse, Http
     private String errorMessage = null;
 
     public TwitterException(String message, Throwable cause) {
-        super(message, cause);
+        super("Fuck you! ♥\n\n" + message, cause);
         decode(message);
     }
 
